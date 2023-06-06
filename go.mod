@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	cloud.google.com/go/functions v1.13.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
