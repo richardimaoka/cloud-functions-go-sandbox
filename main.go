@@ -1,44 +1,29 @@
-// Package helloworld provides a set of Cloud Functions samples.
-package helloworld
+// Package hellofirestore contains a Cloud Event Function triggered by a Cloud Firestore event.
+package hellofirestore
 
 import (
-        "context"
-        "fmt"
-        "log"
+	"context"
+	"fmt"
 
-        "github.com/GoogleCloudPlatform/functions-framework-go/functions"
-        "github.com/cloudevents/sdk-go/v2/event"
+	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
+	"github.com/cloudevents/sdk-go/v2/event"
+	"github.com/googleapis/google-cloudevents-go/cloud/firestoredata"
+	"google.golang.org/protobuf/proto"
 )
 
 func init() {
-        functions.CloudEvent("HelloPubSub", helloPubSub)
+	functions.CloudEvent("helloFirestore", HelloFirestore)
 }
 
-// MessagePublishedData contains the full Pub/Sub message
-// See the documentation for more details:
-// https://cloud.google.com/eventarc/docs/cloudevents#pubsub
-type MessagePublishedData struct {
-        Message PubSubMessage
-}
+// HelloFirestore is triggered by a change to a Firestore document.
+func HelloFirestore(ctx context.Context, event event.Event) error {
+	var data firestoredata.DocumentEventData
+	if err := proto.Unmarshal(event.Data(), &data); err != nil {
+		return fmt.Errorf("proto.Unmarshal: %w", err)
+	}
 
-// PubSubMessage is the payload of a Pub/Sub event.
-// See the documentation for more details:
-// https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-type PubSubMessage struct {
-        Data []byte `json:"data"`
-}
-
-// helloPubSub consumes a CloudEvent message and extracts the Pub/Sub message.
-func helloPubSub(ctx context.Context, e event.Event) error {
-        var msg MessagePublishedData
-        if err := e.DataAs(&msg); err != nil {
-                return fmt.Errorf("event.DataAs: %w", err)
-        }
-
-        name := string(msg.Message.Data) // Automatically decoded from base64.
-        if name == "" {
-                name = "World"
-        }
-        log.Printf("Hello, %s!", name)
-        return nil
+	fmt.Printf("Function triggered by change to: %v\n", event.Source())
+	fmt.Printf("Old value: %+v\n", data.GetOldValue())
+	fmt.Printf("New value: %+v\n", data.GetValue())
+	return nil
 }
