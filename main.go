@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	functions.CloudEvent("helloFirestore", HelloFirestore)
+	functions.CloudEvent("HelloFirestore", HelloFirestore)
 }
 
 // HelloFirestore is triggered by a change to a Firestore document.
